@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "954413605243",
+    "project_id": "redarko-9dc54",
+    "storage_bucket": "redarko-9dc54.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954413605243:android:46d8203a182cb116ff5dde",
+        "android_client_info": {
+          "package_name": "com.example.redarko"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC00LxoqKsjwkvkvEUIoBa5u7Q8cTZ_JXM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
