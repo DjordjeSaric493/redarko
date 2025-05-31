@@ -1,63 +1,69 @@
-//klasa korisnik
-//id,ime,prezime,telefon,rola,dan,smena,lokacija,status
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserModel {
   final String uid;
   final String firstName;
   final String lastName;
-  final String email; // Dodato
+  final String email;
   final String phoneNumber;
-  final String role;
-  final String? day;
-  final String? shiftTime;
-  final GeoPoint? location;
-  final String? status;
+  final String role; // npr. 'koordinator', 'vođa smene', 'redar'
+  final String? day; // dan smene
+  final String? shiftTime; // vreme smene (08:00-12:00)
+  final String? locationDescription; // npr. "Ispred zgrade FON-a"
+  final double? latitude;
+  final double? longitude;
+  final String? status; // 'safe', 'unsafe', 'red'
 
   UserModel({
     required this.uid,
     required this.firstName,
     required this.lastName,
-    required this.email, // Dodato
+    required this.email,
     required this.phoneNumber,
     required this.role,
     this.day,
     this.shiftTime,
+    this.locationDescription,
+    this.latitude,
+    this.longitude,
     this.status,
-    this.location,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data, String uid) {
     return UserModel(
       uid: uid,
-      firstName: data['first_name'],
-      lastName: data['last_name'],
-      email: data['email'], // Dodato
-      phoneNumber: data['phone_number'],
-      role: data['role'],
+      firstName: data['first_name'] ?? '',
+      lastName: data['last_name'] ?? '',
+      email: data['email'] ?? '',
+      phoneNumber: data['phone_number'] ?? '',
+      role: data['role'] ?? '',
       day: data['day'],
       shiftTime: data['shift_time'],
+      locationDescription: data['location_description'],
+      latitude: data['latitude']?.toDouble(),
+      longitude: data['longitude']?.toDouble(),
       status: data['status'],
-      location: data['location'],
     );
   }
-
+  //pravim mapu sa dinamičkim vrednostima (lat i longitude su double npr pa se supabase drkao na mene)
   Map<String, dynamic> toMap() {
-    return {
+    final Map<String, dynamic> map = {
       'first_name': firstName,
       'last_name': lastName,
-      'email': email, // Dodato
+      'email': email,
       'phone_number': phoneNumber,
       'role': role,
-      'day': day,
-      'shift_time': shiftTime,
-      'status': status,
-      'location': location,
     };
+
+    if (day != null) map['day'] = day;
+    if (shiftTime != null) map['shift_time'] = shiftTime;
+    if (locationDescription != null)
+      map['location_description'] = locationDescription;
+    if (latitude != null) map['latitude'] = latitude;
+    if (longitude != null) map['longitude'] = longitude;
+    if (status != null) map['status'] = status;
+
+    return map;
   }
 
-  // (Opcionalno) copyWith ako ti bude trebalo
   UserModel copyWith({
     String? uid,
     String? firstName,
@@ -67,7 +73,9 @@ class UserModel {
     String? role,
     String? day,
     String? shiftTime,
-    GeoPoint? location,
+    String? locationDescription,
+    double? latitude,
+    double? longitude,
     String? status,
   }) {
     return UserModel(
@@ -79,7 +87,9 @@ class UserModel {
       role: role ?? this.role,
       day: day ?? this.day,
       shiftTime: shiftTime ?? this.shiftTime,
-      location: location ?? this.location,
+      locationDescription: locationDescription ?? this.locationDescription,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       status: status ?? this.status,
     );
   }

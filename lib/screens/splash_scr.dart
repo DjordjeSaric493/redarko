@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:animated_text_kit/animated_text_kit.dart'; // Dodaj ovu liniju
-import 'login_scr.dart'; // Pretpostavljam da ćeš ovo dodati kasnije
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'login_scr.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,53 +13,67 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  // Dodaj kontrolere za animacije slika
   late AnimationController _image1Controller;
   late AnimationController _image2Controller;
   late Animation<double> _image1Animation;
   late Animation<double> _image2Animation;
+  final _supabase = Supabase.instance.client;
 
   @override
   void initState() {
     super.initState();
 
-    // Inicijalizacija kontrolera za animacije slika
+    _initAnimations();
+    _checkAuthStatus();
+  }
+
+  void _initAnimations() {
     _image1Controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3), // Podesi trajanje animacije
-    )..repeat(reverse: true); // Ponovi animaciju unazad i napred
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
 
     _image2Controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    // Definiši animacije (npr., promena opacity-a)
     _image1Animation = Tween<double>(
       begin: 0.2,
       end: 1.0,
-    ).animate(_image1Controller); // Postavi opseg
+    ).animate(_image1Controller);
     _image2Animation = Tween<double>(
       begin: 0.2,
       end: 1.0,
     ).animate(_image2Controller);
 
-    // Pokreni animacije
     _image1Controller.forward();
     _image2Controller.forward();
+  }
 
-    Timer(const Duration(seconds: 5), () {
-      // Povećao sam trajanje splash ekrana na 5 sekundi
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
-    });
+  Future<void> _checkAuthStatus() async {
+    try {
+      // Proverite da li postoji sesija
+      final session = _supabase.auth.currentSession;
+
+      // Dodajte malu pauzu za animaciju
+      await Future.delayed(const Duration(seconds: 3));
+
+      if (session != null && !session.isExpired) {
+        // ✅ Korisnik je prijavljen i sesija nije istekla
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // ❌ Nema validne sesije
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      // U slučaju greške, prebaci na login
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 
   @override
   void dispose() {
-    // Obavezno dispose kontrolere animacija
     _image1Controller.dispose();
     _image2Controller.dispose();
     super.dispose();
@@ -67,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Postavi pozadinu na belu
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -75,53 +90,41 @@ class _SplashScreenState extends State<SplashScreen>
             AnimatedTextKit(
               animatedTexts: [
                 TyperAnimatedText(
-                  'REDARKO', // Promenio sam tekst u REDARKO
+                  'REDARKO',
                   textStyle: const TextStyle(
                     fontSize: 40.0,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue, // Postavi boju teksta
+                    color: Colors.blue,
                   ),
-                  speed: const Duration(
-                    milliseconds: 200,
-                  ), // Podesi brzinu pisanja
+                  speed: const Duration(milliseconds: 200),
                 ),
               ],
-              totalRepeatCount: 1, // Samo jednom se izvršava animacija
-              pause: const Duration(
-                milliseconds: 1000,
-              ), // Pauza nakon animacije
+              totalRepeatCount: 1,
+              pause: const Duration(milliseconds: 1000),
               displayFullTextOnTap: false,
               stopPauseOnTap: false,
             ),
-            const SizedBox(
-              height: 20,
-            ), // Dodaj malo prostora između teksta i slika
-            // Koristi Row za prikazivanje slika jedna pored druge
+            const SizedBox(height: 20),
             Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.center, // Centriraj slike horizontalno
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Prva animirana slika
                 AnimatedBuilder(
                   animation: _image1Animation,
                   builder: (context, child) {
                     return Opacity(
                       opacity: _image1Animation.value,
                       child: SizedBox(
-                        width: 150, // Podesi širinu slike
-                        height: 150, // Podesi visinu slike
+                        width: 150,
+                        height: 150,
                         child: Image.asset(
-                          'assets/itb.jpg', // Putanja do prve slike
-                          fit:
-                              BoxFit
-                                  .contain, // Prilagodi sliku unutar kontejnera
+                          'assets/itb.jpg',
+                          fit: BoxFit.contain,
                         ),
                       ),
                     );
                   },
                 ),
-                const SizedBox(width: 20), // Dodaj razmak između slika
-                // Druga animirana slika
+                const SizedBox(width: 20),
                 AnimatedBuilder(
                   animation: _image2Animation,
                   builder: (context, child) {
@@ -131,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
                         width: 150,
                         height: 150,
                         child: Image.asset(
-                          'assets/its.jpg', // Putanja do druge slike
+                          'assets/its.jpg',
                           fit: BoxFit.contain,
                         ),
                       ),

@@ -1,28 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
-import 'package:redarko/screens/home_scr.dart';
+
 import 'package:redarko/screens/login_scr.dart';
+import 'package:redarko/screens/main_screen.dart';
 import 'package:redarko/screens/register_scr.dart';
-
 import 'package:redarko/screens/splash_scr.dart';
-import 'package:redarko/screens/shiftsel_scr.dart'; // Pretpostavljam da je ovo home
 
-import 'package:redarko/utils/provider/shift_provider.dart';
-import 'package:redarko/services/firebase_serv.dart';
-import 'firebase_options.dart'; // generiše se automatski
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:redarko/services/supabase_serv.dart';
+
+import 'package:redarko/utils/config.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:redarko/blocs/auth_bl/auth_bl.dart';
+import 'package:redarko/blocs/auth_bl/auth_event.dart';
+import 'package:redarko/blocs/auth_bl/auth_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // iz config klase da se ne vidi jer je u gitignore drko se sa .env bez potrebe
+
+  await Supabase.initialize(
+    url: Config.supabaseUrl,
+    anonKey: Config.supabaseAnonKey,
+  );
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ShiftProvider()),
-        ChangeNotifierProvider(create: (_) => FirebaseService()),
-      ],
-      child: const MyApp(),
+    MultiBlocProvider(
+      providers: [BlocProvider(create: (_) => AuthBloc(SupabaseService()))],
+      child: MyApp(),
     ),
   );
 }
@@ -44,7 +50,7 @@ class MyApp extends StatelessWidget {
         '/splash': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/home': (context) => HomeScreen(), // Pretpostavljeno kao home
+        '/main': (context) => MainScreen(),
       },
     );
   }
