@@ -1,3 +1,3 @@
 # redarko
-
-A new Flutter project.
+# IN PROGRESS - VEOMA PODLOŽNO BAGOVIMA
+Open source aplikacija za redare, pre ću se smilujem da ovo odradim nego što će ispune zahteve...
